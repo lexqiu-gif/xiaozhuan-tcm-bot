@@ -36,7 +36,7 @@
 
 5. **重要**: 在部署前，点击 "Environment Variables"，添加：
    - Name: `DEEPSEEK_API_KEY`
-   - Value: `sk-5426ccb574b849e7b9f96a1758cc3868`（你的API密钥）
+   - Value: `你的DeepSeek API密钥`
 
 6. 点击 "Deploy" 开始部署
 
@@ -48,7 +48,7 @@
 
 1. 创建 `.env` 文件：
    ```
-   DEEPSEEK_API_KEY=sk-5426ccb574b849e7b9f96a1758cc3868
+   DEEPSEEK_API_KEY=你的DeepSeek_API密钥
    ```
 
 2. 安装Vercel CLI（可选）：
