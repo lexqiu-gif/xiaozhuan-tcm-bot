@@ -1,5 +1,5 @@
-// API 配置 - 调用后端API，API密钥安全存储在服务器端
-const API_URL = '/api/chat';
+// API 配置从config.js读取
+// config对象在index.html中通过<script src="config.js">加载
 
 // 对话历史
 let conversationHistory = [
@@ -57,7 +57,7 @@ async function sendMessage() {
         });
 
         // 调用后端API（后端会安全地调用DeepSeek）
-        const response = await fetch(API_URL, {
+        const response = await fetch(config.API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

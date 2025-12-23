@@ -1,0 +1,47 @@
+{
+  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
+  "version": "2.0",
+  "envId": "{{env.ENV_ID}}",
+  "functionRoot": "cloudfunctions",
+  "functions": [
+    {
+      "name": "chat",
+      "timeout": 60,
+      "envVariables": {
+        "DEEPSEEK_API_KEY": "{{env.DEEPSEEK_API_KEY}}"
+      },
+      "runtime": "Nodejs16.13",
+      "memorySize": 256,
+      "vpc": {
+        "vpcId": "",
+        "subnetId": ""
+      }
+    }
+  ],
+  "framework": {
+    "name": "xiaozhuan-tcm-bot",
+    "plugins": {
+      "client": {
+        "use": "@cloudbase/framework-plugin-website",
+        "inputs": {
+          "buildCommand": "",
+          "outputPath": "./",
+          "cloudPath": "/",
+          "ignore": [
+            ".git",
+            ".github",
+            "node_modules",
+            "cloudfunctions",
+            "data",
+            "api",
+            ".env.example",
+            ".gitignore",
+            "README.md",
+            "vercel.json",
+            "cloudbaserc.json"
+          ]
+        }
+      }
+    }
+  }
+}
