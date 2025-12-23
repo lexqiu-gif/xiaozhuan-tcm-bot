@@ -1,6 +1,5 @@
-// DeepSeek API 配置
-const API_KEY = 'sk-5426ccb574b849e7b9f96a1758cc3868';
-const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+// API 配置 - 调用后端API，API密钥安全存储在服务器端
+const API_URL = '/api/chat';
 
 // 对话历史
 let conversationHistory = [
@@ -57,19 +56,14 @@ async function sendMessage() {
             content: message
         });
 
-        // 调用 DeepSeek API
+        // 调用后端API（后端会安全地调用DeepSeek）
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'deepseek-chat',
-                messages: conversationHistory,
-                temperature: 0.7,
-                max_tokens: 2000,
-                stream: false
+                messages: conversationHistory
             })
         });
 
