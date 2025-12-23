@@ -1,14 +1,14 @@
 {
   "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
   "version": "2.0",
-  "envId": "{{env.ENV_ID}}",
+  "envId": "xiaozhuan-3g66kopf179ae7ec",
   "functionRoot": "cloudfunctions",
   "functions": [
     {
       "name": "chat",
       "timeout": 60,
       "envVariables": {
-        "DEEPSEEK_API_KEY": "{{env.DEEPSEEK_API_KEY}}"
+        "DEEPSEEK_API_KEY": "sk-5426ccb574b849e7b9f96a1758cc3868"
       },
       "runtime": "Nodejs16.13",
       "memorySize": 256,
