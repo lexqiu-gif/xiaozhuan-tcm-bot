@@ -1,6 +1,7 @@
 // 腾讯云云函数 - 处理与DeepSeek API的通信
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 // 读取并解析CSV文件
 function loadPatientData() {
@@ -108,28 +109,55 @@ exports.main = async (event, context) => {
             return msg;
         });
 
-        // 调用DeepSeek API
-        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'deepseek-chat',
-                messages: enrichedMessages,
-                temperature: 0.7,
-                max_tokens: 2000,
-                stream: false
-            })
+        // 调用DeepSeek API (使用https模块)
+        const requestData = JSON.stringify({
+            model: 'deepseek-chat',
+            messages: enrichedMessages,
+            temperature: 0.7,
+            max_tokens: 2000,
+            stream: false
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `API请求失败: ${response.status}`);
-        }
+        const data = await new Promise((resolve, reject) => {
+            const options = {
+                hostname: 'api.deepseek.com',
+                path: '/v1/chat/completions',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Length': Buffer.byteLength(requestData)
+                }
+            };
 
-        const data = await response.json();
+            const req = https.request(options, (res) => {
+                let responseData = '';
+
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+
+                res.on('end', () => {
+                    try {
+                        const parsed = JSON.parse(responseData);
+                        if (res.statusCode >= 200 && res.statusCode < 300) {
+                            resolve(parsed);
+                        } else {
+                            reject(new Error(parsed.error?.message || `API请求失败: ${res.statusCode}`));
+                        }
+                    } catch (e) {
+                        reject(new Error('解析响应失败'));
+                    }
+                });
+            });
+
+            req.on('error', (e) => {
+                reject(e);
+            });
+
+            req.write(requestData);
+            req.end();
+        });
 
         // 返回结果
         return {
