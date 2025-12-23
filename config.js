@@ -4,5 +4,5 @@
 
 const config = {
     // 腾讯云云函数HTTP访问地址
-    API_URL: 'https://xiaozhuan-3g66kopf179ae7ec.service.tcloudbase.com/chat'
+    API_URL: 'https://xiaozhuan-3g66kopf179ae7ec-1393123460.ap-shanghai.app.tcloudbase.com/chat'
 };
