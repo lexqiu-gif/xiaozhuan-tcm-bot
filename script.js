@@ -1,6 +1,6 @@
-// API 配置 - 现在调用我们的后端API而不是直接调用DeepSeek
-// 这样API密钥就不会暴露在前端代码中
-const API_URL = '/api/chat';
+// DeepSeek API 配置
+const API_KEY = 'sk-5426ccb574b849e7b9f96a1758cc3868';
+const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 // 对话历史
 let conversationHistory = [
@@ -57,14 +57,19 @@ async function sendMessage() {
             content: message
         });
 
-        // 调用我们的后端API（后端会调用DeepSeek）
+        // 调用 DeepSeek API
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                messages: conversationHistory
+                model: 'deepseek-chat',
+                messages: conversationHistory,
+                temperature: 0.7,
+                max_tokens: 2000,
+                stream: false
             })
         });
 
