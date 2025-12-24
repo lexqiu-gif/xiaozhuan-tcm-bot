@@ -6,62 +6,50 @@
 
 - 基于DeepSeek AI的儿科中医药专家系统
 - 根据孩子的病症和体质特点生成中药处方
-- 包含药材名称、用量、煎服方法等详细信息
+- 包含历史患者案例数据库，AI可参考过往案例
 - 美观的响应式网页界面
+- 支持在中国境内无VPN访问
 
 ## 技术架构
 
 - **前端**: HTML + CSS + JavaScript
-- **后端**: Vercel Serverless Functions
+- **后端**: 腾讯云Cloudbase云函数
 - **AI**: DeepSeek API
+- **数据存储**: CSV文件（历史患者案例）
 
-## 部署到Vercel
+## 部署说明
 
-### 1. 准备工作
+本项目部署在腾讯云Cloudbase平台。
 
-确保你有：
-- GitHub账号
-- Vercel账号（可以用GitHub登录）
-- DeepSeek API密钥
+详细部署步骤请查看：[DEPLOY_CLOUDBASE.md](./DEPLOY_CLOUDBASE.md)
 
-### 2. 部署步骤
+## 在线访问
 
-1. 将项目推送到GitHub仓库
+网站地址：https://xiaozhuan-3g66kopf179ae7ec-1393123460.tcloudbaseapp.com
 
-2. 访问 [Vercel](https://vercel.com) 并登录
+## 使用说明
 
-3. 点击 "Add New Project" > "Import Git Repository"
+1. 访问网站
+2. 输入孩子的病症和体质特点（如年龄、症状、体质等）
+3. AI会参考历史患者案例，给出针对性的中药处方建议
+4. 处方包含：汤药配方、丸散剂、辅助用药等
 
-4. 选择这个项目的GitHub仓库
+## 更新患者数据
 
-5. **重要**: 在部署前，点击 "Environment Variables"，添加：
-   - Name: `DEEPSEEK_API_KEY`
-   - Value: `你的DeepSeek API密钥`
+当需要添加新的患者案例时：
 
-6. 点击 "Deploy" 开始部署
-
-7. 等待几分钟，部署完成后会获得一个公网访问地址
-
-### 3. 本地开发
-
-如果要在本地测试，需要：
-
-1. 创建 `.env` 文件：
-   ```
-   DEEPSEEK_API_KEY=你的DeepSeek_API密钥
-   ```
-
-2. 安装Vercel CLI（可选）：
+1. 编辑 `cloudfunctions/chat/patients.csv` 文件
+2. 按照现有格式添加新的患者数据
+3. 重新部署云函数：
    ```bash
-   npm install -g vercel
-   vercel dev
+   cloudbase functions:deploy chat -e xiaozhuan-3g66kopf179ae7ec --force
    ```
 
 ## 安全性说明
 
-- API密钥存储在服务器端环境变量中，不会暴露给前端
-- 使用Serverless Functions作为中间层，保护敏感信息
-- 前端代码中不包含任何API密钥
+- API密钥安全存储在云函数环境变量中
+- 前端代码不包含任何敏感信息
+- 云函数作为中间层保护API密钥
 
 ## 免责声明
 

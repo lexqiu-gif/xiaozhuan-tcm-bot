@@ -75,7 +75,20 @@ exports.main = async (event, context) => {
 
     try {
         // 解析请求体
-        const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+        let body;
+        if (typeof event.body === 'string') {
+            if (!event.body || event.body.trim() === '') {
+                return { error: '请求体为空' };
+            }
+            try {
+                body = JSON.parse(event.body);
+            } catch (e) {
+                return { error: '请求体JSON格式错误: ' + e.message };
+            }
+        } else {
+            body = event.body || {};
+        }
+
         const { messages } = body;
 
         // 验证请求数据
