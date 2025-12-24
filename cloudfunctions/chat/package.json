@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "小专中医药方Bot云函数",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "openai": "^4.20.0"
+  },
   "engines": {
     "node": ">=16"
   }

@@ -1,7 +1,7 @@
-// 腾讯云云函数 - 处理与DeepSeek API的通信
+// 腾讯云云函数 - 使用OpenAI SDK调用DeepSeek API
+const OpenAI = require('openai').default;
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
 // 读取并解析CSV文件
 function loadPatientData() {
@@ -65,6 +65,14 @@ function loadPatientData() {
 }
 
 exports.main = async (event, context) => {
+    // 设置HTTP响应头
+    context.response = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
+    };
+
     try {
         // 解析请求体
         const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
@@ -72,28 +80,20 @@ exports.main = async (event, context) => {
 
         // 验证请求数据
         if (!messages || !Array.isArray(messages)) {
-            return {
-                statusCode: 400,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                body: JSON.stringify({ error: '无效的请求数据' })
-            };
+            return { error: '无效的请求数据' };
         }
 
         // 从环境变量获取API密钥
         const API_KEY = process.env.DEEPSEEK_API_KEY;
         if (!API_KEY) {
-            return {
-                statusCode: 500,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                body: JSON.stringify({ error: 'API密钥未配置' })
-            };
+            return { error: 'API密钥未配置' };
         }
+
+        // 初始化OpenAI客户端
+        const openai = new OpenAI({
+            baseURL: 'https://api.deepseek.com',
+            apiKey: API_KEY
+        });
 
         // 加载历史患者数据
         const patientData = loadPatientData();
@@ -109,77 +109,21 @@ exports.main = async (event, context) => {
             return msg;
         });
 
-        // 调用DeepSeek API (使用https模块)
-        const requestData = JSON.stringify({
+        // 调用DeepSeek API
+        const completion = await openai.chat.completions.create({
             model: 'deepseek-chat',
             messages: enrichedMessages,
             temperature: 0.7,
-            max_tokens: 2000,
-            stream: false
-        });
-
-        const data = await new Promise((resolve, reject) => {
-            const options = {
-                hostname: 'api.deepseek.com',
-                path: '/v1/chat/completions',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`,
-                    'Content-Length': Buffer.byteLength(requestData)
-                }
-            };
-
-            const req = https.request(options, (res) => {
-                let responseData = '';
-
-                res.on('data', (chunk) => {
-                    responseData += chunk;
-                });
-
-                res.on('end', () => {
-                    try {
-                        const parsed = JSON.parse(responseData);
-                        if (res.statusCode >= 200 && res.statusCode < 300) {
-                            resolve(parsed);
-                        } else {
-                            reject(new Error(parsed.error?.message || `API请求失败: ${res.statusCode}`));
-                        }
-                    } catch (e) {
-                        reject(new Error('解析响应失败'));
-                    }
-                });
-            });
-
-            req.on('error', (e) => {
-                reject(e);
-            });
-
-            req.write(requestData);
-            req.end();
+            max_tokens: 2000
         });
 
         // 返回结果
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify(data)
-        };
+        return completion;
 
     } catch (error) {
         console.error('错误:', error);
         return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                error: error.message || '服务器内部错误'
-            })
+            error: error.message || '服务器内部错误'
         };
     }
 };
